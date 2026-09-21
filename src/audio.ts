@@ -1,0 +1,7 @@
+import type {Event} from './simulation';
+export class Sound{
+ context:AudioContext|null=null;enabled=true;
+ unlock(){if(!this.context)this.context=new AudioContext();if(this.context.state==='suspended')void this.context.resume();}
+ tone(f:number,duration=.1,type:OscillatorType='sine',volume=.035,delay=0){if(!this.enabled||!this.context)return;const t=this.context.currentTime+delay,o=this.context.createOscillator(),g=this.context.createGain();o.type=type;o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*.88,t+duration);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g).connect(this.context.destination);o.start(t);o.stop(t+duration+.01);}
+ play(e:Event){if(e.type==='place'||e.type==='rotate')this.tone(e.type==='place'?560:690,.07,'sine',.027);if(e.type==='launch')this.tone(330,.16,'triangle');if(e.type==='bounce'){this.tone(220,.12,'triangle');this.tone(660,.18,'sine',.04,.07);}if(e.type==='magnet')this.tone(880,.16,'sine',.025);if(e.type==='switch'||e.type==='gate'||e.type==='seesaw')this.tone(e.type==='switch'?790:420,.085,'triangle',.027);if(e.type==='catch'){this.tone(660+(e.amount||0)*110,.18);this.tone(1100,.22,'sine',.025,.07);}if(e.type==='fail')this.tone(190,.23,'triangle',.025);if(e.type==='win')for(const [i,f]of [523,659,784,1047].entries())this.tone(f,.3,'sine',.035,i*.09);}
+}
